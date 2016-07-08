@@ -1,0 +1,147 @@
+{
+  "objects": [
+    {
+      "*password": "#{*myRDSPassword}",
+      "name": "rds_mysql",
+      "jdbcProperties": "allowMultiQueries=true",
+      "id": "rds_mysql",
+      "type": "RdsDatabase",
+      "rdsInstanceId": "#{myRDSInstanceId}",
+      "username": "#{myRDSUsername}"
+    },
+    {
+      "output": {
+        "ref": "DestinationRDSTable"
+      },
+      "input": {
+        "ref": "S3InputDataLocation"
+      },
+      "dependsOn": {
+        "ref": "RdsMySqlTableCreateActivity"
+      },
+      "name": "DataLoadActivity",
+      "id": "DataLoadActivity",
+      "runsOn": {
+        "ref": "Ec2Instance"
+      },
+      "type": "CopyActivity"
+    },
+    {
+      "database": {
+        "ref": "rds_mysql"
+      },
+      "name": "RdsMySqlTableCreateActivity",
+      "runsOn": {
+        "ref": "Ec2Instance"
+      },
+      "id": "RdsMySqlTableCreateActivity",
+      "type": "SqlActivity",
+      "script": "#{myRDSCreateTableSql}"
+    },
+    {
+      "instanceType": "t1.micro",
+      "name": "Ec2Instance",
+      "actionOnTaskFailure": "terminate",
+      "securityGroups": "#{myEc2RdsSecurityGrps}",
+      "id": "Ec2Instance",
+      "type": "Ec2Resource",
+      "terminateAfter": "2 Hours"
+    },
+    {
+      "name": "DataFormat1",
+      "id": "DataFormat1",
+      "type": "CSV"
+    },
+    {
+      "database": {
+        "ref": "rds_mysql"
+      },
+      "name": "DestinationRDSTable",
+      "insertQuery": "#{myRDSTableInsertSql}",
+      "id": "DestinationRDSTable",
+      "type": "SqlDataNode",
+      "table": "#{myRDSTableName}",
+      "selectQuery": "select * from #{table}"
+    },
+    {
+      "directoryPath": "#{myInputS3Loc}",
+      "dataFormat": {
+        "ref": "DataFormat1"
+      },
+      "name": "S3InputDataLocation",
+      "id": "S3InputDataLocation",
+      "type": "S3DataNode"
+    },
+    {
+      "failureAndRerunMode": "CASCADE",
+      "resourceRole": "DataPipelineDefaultResourceRole",
+      "role": "DataPipelineDefaultRole",
+      "pipelineLogUri": "s3://collegescorecard/AWSPipelineLogs/",
+      "scheduleType": "ONDEMAND",
+      "name": "Default",
+      "id": "Default"
+    }
+  ],
+  "parameters": [
+    {
+      "description": "RDS MySQL password",
+      "id": "*myRDSPassword",
+      "type": "String"
+    },
+    {
+      "watermark": "security group name",
+      "helpText": "The names of one or more EC2 security groups that have access to the RDS MySQL cluster.",
+      "description": "RDS MySQL security group(s)",
+      "isArray": "true",
+      "optional": "true",
+      "id": "myEc2RdsSecurityGrps",
+      "type": "String"
+    },
+    {
+      "description": "RDS MySQL username",
+      "id": "myRDSUsername",
+      "type": "String"
+    },
+    {
+      "description": "Input S3 file path",
+      "id": "myInputS3Loc",
+      "type": "AWS::S3::ObjectKey"
+    },
+    {
+      "helpText": "The SQL statement to insert data into the RDS MySQL table.",
+      "watermark": "INSERT INTO #{table} (col1, col2, col3) VALUES(?, ?, ?) ;",
+      "description": "Insert SQL query",
+      "id": "myRDSTableInsertSql",
+      "type": "String"
+    },
+    {
+      "helpText": "The name of an existing table or a new table that will be created based on the create table SQL query parameter below.",
+      "description": "RDS MySQL table name",
+      "id": "myRDSTableName",
+      "type": "String"
+    },
+    {
+      "watermark": "CREATE TABLE pet IF NOT EXISTS (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), gender CHAR(1), birth DATE, death DATE);",
+      "helpText": "The idempotent SQL statement to create the RDS MySQL table if it does not already exist.",
+      "description": "Create table SQL query",
+      "optional": "true",
+      "id": "myRDSCreateTableSql",
+      "type": "String"
+    },
+    {
+      "watermark": "DB Instance",
+      "description": "RDS Instance ID",
+      "id": "myRDSInstanceId",
+      "type": "String"
+    }
+  ],
+  "values": {
+    "myRDSInstanceId": "collegeratings",
+    "myRDSUsername": "dbadmin",
+    "myRDSTableInsertSql": "insert into collegerawdata\n(UNITID,\nOPEID,\nopeid6,\nINSTNM,\nCITY,\nSTABBR,\nINSTURL,\nNPCURL,\nHCM2,\nPREDDEG,\nCONTROL,\nLOCALE,\nHBCU,\nPBI,\nANNHI,\nTRIBAL,\nAANAPII,\nHSI,\nNANTI,\nMENONLY,\nWOMENONLY,\nRELAFFIL,\nSATVR25,\nSATVR75\n,SATMT25\n,SATMT75\n,SATWR25\n,SATWR75\n,SATVRMID\n,SATMTMID\n,SATWRMID\n,ACTCM25\n,ACTCM75\n,ACTEN25\n,ACTEN75\n,ACTMT25\n,ACTMT75\n,ACTWR25\n,ACTWR75\n,ACTCMMID\n,ACTENMID\n,ACTMTMID\n,ACTWRMID\n,SAT_AVG\n,SAT_AVG_ALL\n,PCIP01\n,PCIP03\n,PCIP04\n,PCIP05\n,PCIP09\n,PCIP10\n,PCIP11\n,PCIP12\n,PCIP13\n,PCIP14\n,PCIP15\n,PCIP16\n,PCIP19\n,PCIP22\n,PCIP23\n,PCIP24\n,PCIP25\n,PCIP26\n,PCIP27\n,PCIP29\n,PCIP30\n,PCIP31\n,PCIP38\n,PCIP39\n,PCIP40\n,PCIP41\n,PCIP42\n,PCIP43\n,PCIP44\n,PCIP45\n,PCIP46\n,PCIP47\n,PCIP48\n,PCIP49\n,PCIP50\n,PCIP51\n,PCIP52\n,PCIP54\n,DISTANCEONLY\n,UGDS\n,UGDS_WHITE\n,UGDS_BLACK\n,UGDS_HISP\n,UGDS_ASIAN\n,UGDS_AIAN\n,UGDS_NHPI\n,UGDS_2MOR\n,UGDS_NRA\n,UGDS_UNKN\n,PPTUG_EF\n,CURROPER\n,NPT4_PUB\n,NPT4_PRIV\n,NPT41_PUB\n,NPT42_PUB\n,NPT43_PUB\n,NPT44_PUB\n,NPT45_PUB\n,NPT41_PRIV\n,NPT42_PRIV\n,NPT43_PRIV\n,NPT44_PRIV\n,NPT45_PRIV\n,PCTPELL\n,RET_FT4\n,RET_FTL4\n,RET_PT4\n,RET_PTL4\n,PCTFLOAN\n,UG25abv\n,GRAD_DEBT_MDN_SUPP\n,GRAD_DEBT_MDN10YR_SUPP\n,RPY_3YR_RT_SUPP\n,C150_4_POOLED_SUPP\n,C200_L4_POOLED_SUPP\n,md_earn_wne_p10\n,gt_25k_p6)\nvalues (?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?,?,?,?,?,?,?,?,?,\n?,?)",
+    "*myRDSPassword": "dbadmin.123",
+    "myRDSCreateTableSql": "CREATE TABLE IF NOT EXISTS collegerawdata (\nUNITID TEXT,OPEID TEXT,opeid6 TEXT,INSTNM TEXT,CITY TEXT,STABBR TEXT,INSTURL TEXT,NPCURL TEXT,HCM2 TEXT,\nPREDDEG TEXT,CONTROL TEXT,LOCALE TEXT,HBCU TEXT,PBI TEXT,ANNHI TEXT,TRIBAL TEXT,AANAPII TEXT,HSI TEXT,NANTI TEXT,\nMENONLY TEXT,WOMENONLY TEXT,RELAFFIL TEXT,SATVR25 TEXT,SATVR75 TEXT,SATMT25 TEXT,SATMT75 TEXT,SATWR25 TEXT,\nSATWR75 TEXT,SATVRMID TEXT,SATMTMID TEXT,SATWRMID TEXT,ACTCM25 TEXT,ACTCM75 TEXT,ACTEN25 TEXT,ACTEN75 TEXT,\nACTMT25 TEXT,ACTMT75 TEXT,ACTWR25 TEXT,ACTWR75 TEXT,ACTCMMID TEXT,ACTENMID TEXT,ACTMTMID TEXT,ACTWRMID TEXT,\nSAT_AVG TEXT,SAT_AVG_ALL TEXT,PCIP01 TEXT,PCIP03 TEXT,PCIP04 TEXT,PCIP05 TEXT,PCIP09 TEXT,PCIP10 TEXT,\nPCIP11 TEXT,PCIP12 TEXT,PCIP13 TEXT,PCIP14 TEXT,PCIP15 TEXT,PCIP16 TEXT,PCIP19 TEXT,PCIP22 TEXT,PCIP23 TEXT,\nPCIP24 TEXT,PCIP25 TEXT,PCIP26 TEXT,PCIP27 TEXT,PCIP29 TEXT,PCIP30 TEXT,PCIP31 TEXT,PCIP38 TEXT,PCIP39 TEXT,\nPCIP40 TEXT,PCIP41 TEXT,PCIP42 TEXT,PCIP43 TEXT,PCIP44 TEXT,PCIP45 TEXT,PCIP46 TEXT,PCIP47 TEXT,PCIP48 TEXT,\nPCIP49 TEXT,PCIP50 TEXT,PCIP51 TEXT,PCIP52 TEXT,PCIP54 TEXT,DISTANCEONLY TEXT,UGDS TEXT,UGDS_WHITE TEXT,\nUGDS_BLACK TEXT,UGDS_HISP TEXT,UGDS_ASIAN TEXT,UGDS_AIAN TEXT,UGDS_NHPI TEXT,UGDS_2MOR TEXT,UGDS_NRA TEXT,\nUGDS_UNKN TEXT,PPTUG_EF TEXT,CURROPER TEXT,NPT4_PUB TEXT,NPT4_PRIV TEXT,NPT41_PUB TEXT,NPT42_PUB TEXT,\nNPT43_PUB TEXT,NPT44_PUB TEXT,NPT45_PUB TEXT,NPT41_PRIV TEXT,NPT42_PRIV TEXT,NPT43_PRIV TEXT,NPT44_PRIV TEXT,\nNPT45_PRIV TEXT,PCTPELL TEXT,RET_FT4 TEXT,RET_FTL4 TEXT,RET_PT4 TEXT,RET_PTL4 TEXT,PCTFLOAN TEXT,UG25abv TEXT,\nGRAD_DEBT_MDN_SUPP TEXT,GRAD_DEBT_MDN10YR_SUPP TEXT,RPY_3YR_RT_SUPP TEXT,C150_4_POOLED_SUPP TEXT,\nC200_L4_POOLED_SUPP TEXT,md_earn_wne_p10 TEXT,gt_25k_p6 TEXT);",
+    "myRDSTableName": "collegerawdata",
+    "myInputS3Loc": "s3://collegescorecard/CollegeRawScorecard2.csv"
+  }
+}
