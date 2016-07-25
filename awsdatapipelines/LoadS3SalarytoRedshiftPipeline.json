@@ -149,7 +149,7 @@
   ],
   "values": {
     "myRedshiftUsername": "dbadmin",
-    "myRedshiftCreateTableSql": "CREATE TABLE IF NOT EXISTS USASALARYBYZIP (Zip varchar(10), \tMedianIncome varchar(20), \tMeanIncome varchar(20),\tPopulationCount varchar(20) )",
+    "myRedshiftCreateTableSql": "create table if not exists usasalarybyzip\n(zip varchar(20), medianincome int, meanincome int, populationcount int);",
     "myRedshiftDbName": "censusraw",
     "myRedshiftJdbcConnectStr": "jdbc:postgresql://collegescoredw.cpawgybltsnz.us-east-1.redshift.amazonaws.com:5439/censusraw?tcpKeepAlive=true",
     "*myRedshiftPassword": “password”,
