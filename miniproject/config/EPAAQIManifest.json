@@ -1,0 +1,25 @@
+{
+    "fileLocations": [
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2010/aqireport2010.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2011/aqireport2011.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2012/aqireport2012.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2013/aqireport2013.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2014/aqireport2014.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2015/aqireport2015.csv"
+        },
+        {
+            "url": "s3://quicksight-mini-project/EPAaqidata/year=2016/aqireport2016.csv"
+        }
+    ]
+}

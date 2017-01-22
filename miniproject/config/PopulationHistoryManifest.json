@@ -1,0 +1,7 @@
+{
+    "fileLocations": [
+        {
+            "url": "s3://quicksight-mini-project/Populationdata/us_population_data_wo_header.csv"
+        }
+    ]
+}

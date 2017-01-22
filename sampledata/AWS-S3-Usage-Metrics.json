@@ -1,0 +1,1 @@
+{    "fileLocations": [        {            "URIs": [                "https://s3.amazonaws.com/aws-biling-metrics//S3-Usage-Metrics/20160801-20160901/01bc9182-123a-42cc-8a09-7e0e0788f5ed/S3-Usage-Metrics-1.csv.gz"            ]        }    ],    "globalUploadSettings": {        "format": "CSV",        "delimiter": ",",        "containsHeader": “true”    }}
