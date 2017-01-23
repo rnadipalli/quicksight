@@ -1,16 +1,8 @@
 CREATE DATABASE polutionanalysisdb;
 
--- There is a total of 28 fields:
--- State Code : The code allocated by US EPA to each state
--- County code : The code of counties in a specific state allocated by US EPA
--- Site Num : The site number in a specific county allocated by US EPA
--- Address: Address of the monitoring site
--- State : State of monitoring site
--- County : County of monitoring site
--- City : City of the monitoring site
+
 -- Date Local : Date of monitoring
 -- The four pollutants (NO2, O3, SO2 and O3) each has 5 specific columns. For instance, for NO2:
-
 -- NO2 Units : The units measured for NO2
 -- NO2 Mean : The arithmetic mean of concentration of NO2 within a given day
 -- NO2 AQI : The calculated air quality index of NO2 within a given day
@@ -18,50 +10,7 @@ CREATE DATABASE polutionanalysisdb;
 -- NO2 1st Max Hour : The hour when the maximum NO2 concentration was recorded in a given day
 -- https://aqsdr1.epa.gov/aqsweb/aqstmp/airdata/download_files.html
 
-CREATE EXTERNAL TABLE IF NOT EXISTS polutionanalysisdb.polution_raw (
-  `ID` int,
-  `State_Code` int,
-  `County_Code` int,
-  `Site_Num` int,
-  `Address` string,
-  `State` string,
-  `County` string,
-  `City` string,
-  `Date_Local` string,
-  `NO2_Units` string,
-  `NO2_Mean` float,
-  `NO2_1st_Max_Value` float,
-  `NO2_1st_Max_Hour` float,
-  `NO2_AQI` float,
-  `O3_Units` string,
-  `O3_Mean` float,
-  `O3_1st_Max_Value` float,
-  `O3_1st_Max_Hour` float,
-  `O3_AQI` float,
-  `SO2_Units` string,
-  `SO2_Mean` float,
-  `SO2_1st_Max_Value` float,
-  `SO2_1st_Max_Hour` float,
-  `SO2_AQI` float,
-  `CO_Units` string,
-  `CO_Mean` float,
-  `CO_1st_Max_Value` float,
-  `CO_1st_Max_Hour` float,
-  `CO_AQI` float 
-)
-ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-WITH SERDEPROPERTIES (
-  'serialization.format' = ',',
-  'field.delim' = ','
-) LOCATION 's3://quicksight-mini-project/Polutiondata/';
-
--- use this to load all partitions for the table
-MSCK REPAIR TABLE CollegeStatsAthenaDB.CollegeStats;
-
--- new table
-drop table polutionanalysisdb.polution_raw;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS polutionanalysisdb.polution_raw (
+CREATE EXTERNAL TABLE IF NOT EXISTS polutionanalysisdb.epaaqi_raw (
   `City_Code` int,
   `City_Name` string,
   `Days_with_AQI` int,
@@ -85,9 +34,9 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
 WITH SERDEPROPERTIES (
   'serialization.format' = ',',
   'field.delim' = '|'
-) LOCATION 's3://quicksight-mini-project/Polutiondata/';
+) LOCATION 's3://quicksight-mini-project/EPAaqidata/';
 
-MSCK REPAIR TABLE polutionanalysisdb.polution_raw;
+MSCK REPAIR TABLE polutionanalysisdb.epaaqi_raw;
 
 
 CREATE EXTERNAL TABLE IF NOT EXISTS polutionanalysisdb.population_raw (
@@ -196,26 +145,3 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
 WITH SERDEPROPERTIES (
          'serialization.format' = ',', 'field.delim' = ',' ) 
         LOCATION 's3://quicksight-mini-project/Populationdata/';    
-        
-        
--- Athena does not support, for example, CREATE TABLE AS SELECT, which creates a table from the result of a SELECT query statement.
-        
-select polr.year, popr.ctyname, popr.census2010pop as PopulationCount , 
-       polr.Good_Days, polr.Moderate_Days, polr.Unhealthy_for_Sensitive_Days, polr.Unhealthy_Days,
-       polr.Very_Unhealthy_Days
-from polutionanalysisdb.population_raw popr, 
-     polutionanalysisdb.polution_raw polr
-where popr.stname = 'Texas'
-and   popr.ctyname like 'Austin%'
-and   polr.city_name LIKE 'Austin%'
-and   polr.year = '2010'
-UNION
-select polr.year, popr.ctyname, popr.POPESTIMATE2015 as PopulationCount ,
-       polr.Good_Days, polr.Moderate_Days, polr.Unhealthy_for_Sensitive_Days, polr.Unhealthy_Days,
-       polr.Very_Unhealthy_Days
-from polutionanalysisdb.population_raw popr, 
-     polutionanalysisdb.polution_raw polr
-where popr.stname = 'Texas'
-and   popr.ctyname like 'Austin%'
-and   polr.city_name LIKE 'Austin%'
-and   polr.year = '2015';         
