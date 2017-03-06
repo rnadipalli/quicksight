@@ -38,8 +38,4 @@ Optionally register for an AWS account for other services, such as S3, Athena, R
 * [Business Intelligence with MicroStrategy Cookbook](https://www.packtpub.com/big-data-and-business-intelligence/business-intelligence-microstrategy-cookbook?utm_source=github&utm_medium=repository&utm_campaign=9781782179757)
 
 ###Suggestions and Feedback
-<<<<<<< HEAD
 [Click here](https://docs.google.com/forms/d/e/1FAIpQLSe5qwunkGf6PUvzPirPDtuy1Du5Rlzew23UBp2S-P3wB-GcwQ/viewform) if you have any feedback or suggestions.
-=======
-[Click here](https://docs.google.com/forms/d/e/1FAIpQLSe5qwunkGf6PUvzPirPDtuy1Du5Rlzew23UBp2S-P3wB-GcwQ/viewform) if you have any feedback or suggestions.
->>>>>>> 972a0b010dd74506e04161f65a5ee9aa8964abbc
